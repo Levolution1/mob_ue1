@@ -1,5 +1,8 @@
 package at.azak;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -12,6 +15,7 @@ import javax.smartcardio.CardTerminals;
 import javax.smartcardio.CommandAPDU;
 import javax.smartcardio.ResponseAPDU;
 import javax.smartcardio.TerminalFactory;
+import javax.smartcardio.TerminalFactorySpi;
 
 import org.apache.log4j.Logger;
 
@@ -40,10 +44,17 @@ public class ECardReader {
 	protected final static Logger logger = Logger.getLogger(at.azak.ECardReader.class);
 
 	
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException {
     	
-    	// Factory erstellen
-        TerminalFactory tf = TerminalFactory.getDefault();
+    	if (Security.getProvider("MyProvider") == null) {
+            MyProvider provider = new MyProvider();
+            Security.addProvider(provider);
+            }
+    	
+    	Security.getProviders();
+    	
+    	TerminalFactory tf = TerminalFactory.getInstance("JCSFactory", null, "MyProvider");
+    	
         
         // Terminals holen
         CardTerminals ct = tf.terminals();
